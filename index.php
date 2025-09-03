@@ -1,34 +1,41 @@
 <?php
-// index.php
-//fai
-$title = "Digital Fortress";
-$secret = "905jfsofvmijfvmdkltoiruetmeru90ge";
-$message = "Access Granted. Welcome to the system. (Farhan)";
+// ⚠️ Intentionally vulnerable PHP code for testing SonarQube scans
+
+// SQL Injection vulnerability
+$servername = "localhost";
+$username = "root";
+$password = "password";
+$dbname = "testdb";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Directly using user input in SQL query (BAD PRACTICE)
+$id = $_GET['id'];
+$sql = "SELECT * FROM users WHERE id = " . $id;   // 🔴 SQL Injection vulnerability
+
+$result = $conn->query($sql);
+
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+        echo "User: " . $row["username"] . " - Email: " . $row["email"] . "<br>";
+    }
+} else {
+    echo "0 results";
+}
+$conn->close();
+
+
+// Cross-Site Scripting (XSS) vulnerability
+if (isset($_GET['name'])) {
+    $name = $_GET['name'];
+    echo "Hello " . $name;   // 🔴 Output not sanitized → XSS possible
+}
+
+
+// Hardcoded secret (will be caught by SonarQube/Trivy)
+$apiKey = "12345-SECRET-API-KEY";  // 🔴 Sensitive hardcoded credential
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title><?php echo $title; ?></title>
-    <style>
-        body {
-            background-color: #000;
-            color: #0f0;
-            font-family: "Courier New", monospace;
-            text-align: center;
-            margin-top: 20%;
-        }
-        h1 {
-            font-size: 2.5em;
-            animation: blink 1s step-start infinite;
-        }
-        @keyframes blink {
-            50% { opacity: 0; }
-        }
-    </style>
-</head>
-<body>
-    <h1><?php echo $message; ?></h1>
-    <h1><?php echo $secret; ?></h1>
-</body>
-</html>
