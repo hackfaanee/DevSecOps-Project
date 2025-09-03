@@ -7,7 +7,7 @@ eval($code);   // 🔴 Rule: "Make sure that using 'eval' is safe here."
 
 // Dangerous use of system() (command injection possible)
 $user_input = $_GET['cmd'];
-system($user_input);   // 🔴 Rule: "Make sure that using 'system' is safe here."
+system($user_input);   // 🔴 Rule: "Masdake sure that using 'system' is safe here."
 
 // Insecure file inclusion
 $file = $_GET['page'];
