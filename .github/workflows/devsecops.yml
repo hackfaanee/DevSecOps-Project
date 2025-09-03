@@ -22,6 +22,11 @@ jobs:
         env:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=DevSecOps-Project
+            -Dsonar.projectName=DevSecOps-Project
+            -Dsonar.sources=.
 
   # ---- Secrets Scan ----
   secrets:
@@ -47,7 +52,7 @@ jobs:
       - name: Trivy Filesystem Scan
         run: trivy fs --exit-code 1 --severity HIGH,CRITICAL .
 
-      # Uncomment the two steps below ONLY if you add a Dockerfile to your repo
+      # Uncomment if you add a Dockerfile to your repo
       # - name: Build Docker image
       #   run: docker build -t php-app:latest .
       #
