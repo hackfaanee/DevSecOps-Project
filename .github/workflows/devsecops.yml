@@ -84,11 +84,11 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Pull OWASP ZAP Docker Image
-        run: docker pull owasp/zap2docker-stable
+        run: docker pull ghcr.io/zaproxy/zaproxy:stable
 
       - name: Run OWASP ZAP
         run: |
-          docker run --rm -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable \
+          docker run --rm -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable \
             zap-baseline.py -t "http://${{ secrets.LINODE_HOST }}/index.php" \
             -r zap-report.html
 
