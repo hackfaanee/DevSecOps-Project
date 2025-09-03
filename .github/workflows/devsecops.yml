@@ -87,6 +87,7 @@ jobs:
           target: "http://${{ secrets.LINODE_HOST }}/index.php"
           rules_file_name: '.zap/rules.tsv'
           cmd_options: '-a'
+          allow_issue_writing: false   # disable GitHub issue creation
 
       - name: Upload ZAP Report
         if: always()
