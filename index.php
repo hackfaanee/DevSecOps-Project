@@ -2,7 +2,7 @@
 // index.php
 //fai
 $title = "Digital Fortress";
-$message = "Access Granted. Welcome to the system. (Anon)";
+$message = "Access Granted. Welcome to the system. (Anonymous)";
 ?>
 <!DOCTYPE html>
 <html lang="en">
