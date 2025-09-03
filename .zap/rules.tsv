@@ -1,0 +1,3 @@
+10010   WARN    WARN   # Missing X-Frame-Options
+40012   FAIL    FAIL   # Cross Site Scripting
+40018   FAIL    FAIL   # SQL Injection

@@ -1,0 +1,91 @@
+name: DevSecOps Full Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  # ---- SonarQube (SAST) ----
+  sonar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v1.1
+        env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # ---- Secrets Scan ----
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run GitLeaks
+        uses: zricethezav/gitleaks-action@v2
+        with:
+          args: detect --source=. --verbose --redact
+
+  # ---- Trivy Scan ----
+  trivy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
+          sudo mv trivy /usr/local/bin/
+
+      - name: Trivy Filesystem Scan
+        run: trivy fs --exit-code 1 --severity HIGH,CRITICAL .
+
+      - name: Build Docker image
+        run: docker build -t php-app:latest .
+
+      - name: Trivy Docker Image Scan
+        run: trivy image --exit-code 1 --severity HIGH,CRITICAL php-app:latest
+
+  # ---- Deploy to Linode (Production) ----
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [sonar, secrets, trivy]
+    steps:
+      - name: Deploy to Linode
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.LINODE_HOST }}
+          username: ${{ secrets.LINODE_USER }}
+          key: ${{ secrets.LINODE_SSH_KEY }}
+          script: |
+            cd /var/www/html
+            git pull origin main
+            sudo systemctl restart apache2
+
+  # ---- OWASP ZAP (DAST) ----
+  dast:
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - name: Run OWASP ZAP
+        uses: zaproxy/action-baseline@v0.13.0
+        with:
+          target: "http://${{ secrets.LINODE_HOST }}/index.php"
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+
+      - name: Upload ZAP Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-report
+          path: |
+            report_html.html
+            report_json.json
+
