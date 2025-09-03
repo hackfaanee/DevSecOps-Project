@@ -14,6 +14,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
+          distribution: 'temurin'
           java-version: '17'
 
       - name: SonarQube Scan
@@ -46,11 +47,12 @@ jobs:
       - name: Trivy Filesystem Scan
         run: trivy fs --exit-code 1 --severity HIGH,CRITICAL .
 
-      - name: Build Docker image
-        run: docker build -t php-app:latest .
-
-      - name: Trivy Docker Image Scan
-        run: trivy image --exit-code 1 --severity HIGH,CRITICAL php-app:latest
+      # Uncomment the two steps below ONLY if you add a Dockerfile to your repo
+      # - name: Build Docker image
+      #   run: docker build -t php-app:latest .
+      #
+      # - name: Trivy Docker Image Scan
+      #   run: trivy image --exit-code 1 --severity HIGH,CRITICAL php-app:latest
 
   # ---- Deploy to Linode (Production) ----
   deploy:
