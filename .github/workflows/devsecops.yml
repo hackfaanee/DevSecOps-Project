@@ -17,7 +17,7 @@ jobs:
           java-version: '17'
 
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v1.1
+        uses: SonarSource/sonarqube-scan-action@v2.0.2
         env:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -41,7 +41,7 @@ jobs:
       - name: Install Trivy
         run: |
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
-          sudo mv trivy /usr/local/bin/
+          sudo mv ./bin/trivy /usr/local/bin/trivy
 
       - name: Trivy Filesystem Scan
         run: trivy fs --exit-code 1 --severity HIGH,CRITICAL .
@@ -88,4 +88,3 @@ jobs:
           path: |
             report_html.html
             report_json.json
-
