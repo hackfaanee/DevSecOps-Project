@@ -88,13 +88,15 @@ jobs:
 
       - name: Run OWASP ZAP
         run: |
-          docker run --rm -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable \
+          docker run --rm --user root -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable \
             zap-baseline.py -t "http://${{ secrets.LINODE_HOST }}/index.php" \
-            -r zap-report.html
+            -r zap-report.html -J zap-report.json
 
       - name: Upload ZAP Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: zap-report
-          path: zap-report.html
+          path: |
+            zap-report.html
+            zap-report.json
